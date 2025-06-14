@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/abdheshnayak/inkube/flags"
-	fn "github.com/abdheshnayak/inkube/pkg/functions"
+	fn "github.com/abdheshnayak/inkube/pkg/fn"
 	"github.com/abdheshnayak/inkube/pkg/ui/text"
 )
 

@@ -2,7 +2,10 @@ package fzf
 
 import (
 	//fzf "github.com/junegunn/fzf/src"
-	"github.com/abdheshnayak/inkube/pkg/functions"
+	"fmt"
+
+	"github.com/abdheshnayak/inkube/pkg/fn"
+	"github.com/abdheshnayak/inkube/pkg/ui/text"
 	"github.com/koki-develop/go-fzf"
 	mfzf "github.com/koki-develop/go-fzf"
 )
@@ -10,7 +13,7 @@ import (
 type Option mfzf.Option
 
 func WithPrompt(prompt string) Option {
-	return Option(mfzf.WithPrompt(prompt))
+	return Option(mfzf.WithPrompt(fmt.Sprintf("%s %s ", prompt, text.Blue(":"))))
 }
 
 func FindOne[T any](items []T, itemFunc func(item T) string, options ...Option) (*T, error) {
@@ -20,12 +23,12 @@ func FindOne[T any](items []T, itemFunc func(item T) string, options ...Option) 
 			opts = append(opts, mfzf.Option(o))
 		}
 
-		opts = append(opts, fzf.WithInputPlaceholder("search"))
+		opts = append(opts, fzf.WithInputPlaceholder("search..."))
 		return opts
 	}()...)
 
 	if err != nil {
-		return nil, functions.NewE(err, "failed to create fzf")
+		return nil, fn.NewE(err, "failed to create fzf")
 	}
 
 	idxs, err := f.Find(items, func(i int) string {
@@ -33,7 +36,7 @@ func FindOne[T any](items []T, itemFunc func(item T) string, options ...Option) 
 	})
 
 	if len(idxs) == 0 {
-		return nil, functions.Error("you have not selected any item")
+		return nil, fn.Error("you have not selected any item")
 	}
 
 	selectedIndex := idxs[0]

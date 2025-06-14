@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	fn "github.com/abdheshnayak/inkube/pkg/functions"
+	fn "github.com/abdheshnayak/inkube/pkg/fn"
 
 	"github.com/abdheshnayak/inkube/pkg/ui/text"
 	"github.com/spf13/cobra"

@@ -1,4 +1,4 @@
-package functions
+package fn
 
 import (
 	"os/exec"

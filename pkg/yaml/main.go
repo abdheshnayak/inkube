@@ -1,10 +1,11 @@
 package yaml
 
 import (
+	"fmt"
 	"io/fs"
 	"os"
-	"path"
 
+	"github.com/abdheshnayak/inkube/pkg/fn"
 	yml "gopkg.in/yaml.v2"
 )
 
@@ -19,10 +20,6 @@ type config[T any] struct {
 }
 
 func (c *config[T]) Read() (*T, error) {
-	if err := os.MkdirAll(path.Dir(c.path), 0o644); err != nil {
-		return c.data, err
-	}
-
 	t, err := ReadConfig[T](c.path)
 	if err != nil {
 		return c.data, err
@@ -51,13 +48,13 @@ func ReadConfig[T any](path string) (*T, error) {
 		return nil, err
 	}
 	if err := yml.Unmarshal(b, &v); err != nil {
-		return nil, fn.NewE(err)
+		return nil, err
 	}
 
 	return &v, nil
 }
 
-func WriteConfig(path string, v interface{}, perm fs.FileMode) error {
+func WriteConfig(path string, v any, perm fs.FileMode) error {
 
 	b, err := os.ReadFile(path)
 	if err != nil {

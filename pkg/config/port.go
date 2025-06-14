@@ -4,39 +4,34 @@ import (
 	"os"
 	"path"
 	"sync"
+
+	cfhandler "github.com/abdheshnayak/inkube/pkg/config-handler"
 )
 
-type Config struct {
-}
-
-type ConfigClient interface {
-	Get() *Config
-	Write() error
-}
-
-type configImpl struct {
+type ConfigClient struct {
 	*Config
-	path string
-	mu   sync.RWMutex
+	handler cfhandler.Config[Config]
+	path    string
+	mu      sync.RWMutex
 }
 
-func (c *configImpl) Write() error {
+func (c *ConfigClient) Write() error {
 	return c.write()
 }
 
-func (c *configImpl) Get() *Config {
-	return c.Config
-}
-
-func NewConfig() (ConfigClient, error) {
+func NewConfig() (*ConfigClient, error) {
 	cwd, err := os.Getwd()
 	if err != nil {
 		return nil, err
 	}
 
-	resp := &configImpl{
-		Config: &Config{},
-		path:   path.Join(cwd, "inkube.yaml"),
+	cpath := path.Join(cwd, "inkube.yaml")
+
+	c := cfhandler.GetHandler[Config](cpath)
+	resp := &ConfigClient{
+		handler: c,
+		Config:  &Config{},
+		path:    cpath,
 	}
 
 	if err := resp.read(); err != nil {
@@ -47,17 +42,18 @@ func NewConfig() (ConfigClient, error) {
 }
 
 var (
-	config        ConfigClient
-	singletonOnce sync.Once
+	config        *ConfigClient
+	singletonOnce sync.Once = sync.Once{}
 )
 
-func Singleton() (ConfigClient, error) {
+func Singleton() *ConfigClient {
 	singletonOnce.Do(func() {
-		config, err := NewConfig()
+		var err error
+		config, err = NewConfig()
 		if err != nil {
 			panic(err)
 		}
 		config.Write()
 	})
-	return config, nil
+	return config
 }

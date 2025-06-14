@@ -1,4 +1,4 @@
-package functions
+package fn
 
 import (
 	"context"
@@ -38,8 +38,11 @@ func ExecCmd(cmdString string, env map[string]string, verbose bool) error {
 	cmd.Stderr = os.Stderr
 	// s.Start()
 	err = cmd.Run()
+	if err != nil {
+		return NewE(err, "failed to execute command")
+	}
 	// s.Stop()
-	return NewE(err, "failed to execute command")
+	return nil
 }
 
 func Exec(cmdString string, env map[string]string) ([]byte, error) {

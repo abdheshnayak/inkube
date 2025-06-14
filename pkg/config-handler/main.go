@@ -3,9 +3,8 @@ package confighandler
 import (
 	"io/fs"
 	"os"
-	"path"
 
-	fn "github.com/abdheshnayak/inkube/pkg/functions"
+	fn "github.com/abdheshnayak/inkube/pkg/fn"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -20,10 +19,6 @@ type config[T any] struct {
 }
 
 func (c *config[T]) Read() (*T, error) {
-	if err := os.MkdirAll(path.Dir(c.path), 0o644); err != nil {
-		return c.data, err
-	}
-
 	t, err := ReadConfig[T](c.path)
 	if err != nil {
 		return c.data, err
@@ -51,6 +46,7 @@ func ReadConfig[T any](path string) (*T, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	if err := yaml.Unmarshal(b, &v); err != nil {
 		return nil, fn.NewE(err)
 	}
@@ -58,8 +54,7 @@ func ReadConfig[T any](path string) (*T, error) {
 	return &v, nil
 }
 
-func WriteConfig(path string, v interface{}, perm fs.FileMode) error {
-
+func WriteConfig(path string, v any, perm fs.FileMode) error {
 	b, err := os.ReadFile(path)
 	if err != nil {
 		// If file doesn't exist, create it

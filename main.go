@@ -1,24 +1,42 @@
 package main
 
 import (
-	"fmt"
 	"os"
+	"os/exec"
 
+	"github.com/abdheshnayak/inkube/cmd"
+	fn "github.com/abdheshnayak/inkube/pkg/fn"
 	"github.com/spf13/cobra"
 )
 
-func main() {
-	var rootCmd = &cobra.Command{
-		Use:   "hugo",
-		Short: "Hugo is a very fast static site generator",
-		Long:  `A Fast and Flexible Static Site Generator built with love by spf13 and friends in Go. Complete documentation is available at http://hugo.spf13.com`,
-		Run: func(cmd *cobra.Command, args []string) {
-			// Do Stuff Here
-		},
-	}
+var rootCmd = &cobra.Command{
+	Use:   "inkube",
+	Short: "Develop inside kubernetes",
+}
 
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+func main() {
+	if err := Run(); err != nil {
+		fn.PrintError(err)
 		os.Exit(1)
 	}
+}
+
+func Run() error {
+	_, err := exec.LookPath("devbox")
+	if err != nil {
+		return fn.Errorf("devbox not found, please ensure devbox is installed")
+	}
+
+	_, err = exec.LookPath("telepresence")
+	if err != nil {
+		return fn.Errorf("telepresence not found, please ensure telepresence is installed")
+	}
+
+	cmd.Load(rootCmd)
+
+	if err := rootCmd.Execute(); err != nil {
+		return err
+	}
+
+	return nil
 }

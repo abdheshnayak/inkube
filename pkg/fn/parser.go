@@ -1,4 +1,4 @@
-package functions
+package fn
 
 import "github.com/spf13/cobra"
 

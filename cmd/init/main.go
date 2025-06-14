@@ -87,10 +87,14 @@ func run() error {
 
 		b, err := yaml.Marshal(config.Config{
 			Namespace: ns.Name,
-			Deployment: config.Deployment{
-				Name:      dep.Name,
-				Container: cont.Name,
-			},
+			Name:      dep.Name,
+			Container: cont.Name,
+			Version:   "v1",
+			Intercept: true,
+
+			// not supported yet
+			Devbox:  false,
+			Loadenv: false,
 		})
 		if err != nil {
 			return err

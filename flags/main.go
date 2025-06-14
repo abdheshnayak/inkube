@@ -2,7 +2,6 @@ package flags
 
 var (
 	Version = "development"
-	CliName = "inkube"
 	DevMode = "false"
 
 	IsVerbose = false

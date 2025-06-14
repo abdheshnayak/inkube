@@ -66,8 +66,8 @@ func run() error {
 	}
 
 	cfg.Namespace = ns.Name
-	cfg.Deployment.Name = dep.Name
-	cfg.Deployment.Container = cont.Name
+	cfg.Name = dep.Name
+	cfg.Container = cont.Name
 
 	return cfg.Write()
 }

@@ -1,14 +1,13 @@
 package config
 
-type ResourceType string
+type Config struct {
+	Version string `yaml:"version"`
 
-type Deployment struct {
+	Namespace string `yaml:"namespace"`
 	Name      string `yaml:"name"`
 	Container string `yaml:"container"`
-}
 
-type Config struct {
-	Namespace  string     `yaml:"namespace"`
-	Deployment Deployment `yaml:"deployment"`
-	Intercept  bool       `yaml:"intercept"`
+	Intercept bool `yaml:"intercept"`
+	Loadenv   bool `yaml:"loadenv"`
+	Devbox    bool `yaml:"devbox"`
 }

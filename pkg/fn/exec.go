@@ -24,10 +24,10 @@ func ExecCmd(cmdString string, env map[string]string, verbose bool) error {
 	if verbose {
 		Log("[#] " + strings.Join(cmdArr, " "))
 		cmd.Stdout = os.Stdout
+		cmd.Stdin = os.Stdin
 	}
 
-	// cmd.Env = os.Environ()
-
+	cmd.Env = os.Environ()
 	if env == nil {
 		env = map[string]string{}
 	}

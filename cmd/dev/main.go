@@ -2,8 +2,11 @@ package dev
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/abdheshnayak/inkube/pkg/config"
 	"github.com/abdheshnayak/inkube/pkg/fn"
+	"github.com/abdheshnayak/inkube/pkg/kube"
 	"github.com/spf13/cobra"
 )
 
@@ -18,14 +21,15 @@ var Cmd = &cobra.Command{
 }
 
 func Run(_ *cobra.Command, args []string) error {
+
 	cfg := config.Singleton()
 
 	please := "please run `inkube switch` to set the app name, namespace and container"
-	if cfg.Deployment.Name == "" {
+	if cfg.Name == "" {
 		return fn.Errorf("deployment name is not set, %s", please)
 	}
 
-	if cfg.Deployment.Container == "" {
+	if cfg.Container == "" {
 		return fn.Errorf("container is not set, %s", please)
 	}
 
@@ -37,13 +41,43 @@ func Run(_ *cobra.Command, args []string) error {
 		return err
 	}
 
+	defer func() {
+		if err := fn.ExecCmd(fmt.Sprintf("telepresence quit"), nil, true); err != nil {
+			fn.PrintError(err)
+		}
+	}()
+
 	if cfg.Intercept {
-		if err := fn.ExecCmd(fmt.Sprintf("telepresence intercept %s -n %s", cfg.Deployment, cfg.Namespace), nil, true); err != nil {
+		if err := fn.ExecCmd(fmt.Sprintf("telepresence intercept %s", cfg.Name), nil, true); err != nil {
+			return err
+		}
+
+		defer func() {
+			if err := fn.ExecCmd(fmt.Sprintf("telepresence leave %s", cfg.Name), nil, true); err != nil {
+				fn.PrintError(err)
+			}
+		}()
+	}
+
+	var envs map[string]string
+	if cfg.Loadenv {
+		kubeclient := kube.Singleton()
+
+		var err error
+		envs, err = kubeclient.GetEnvs(cfg.Namespace, cfg.Name, cfg.Container)
+		if err != nil {
 			return err
 		}
 	}
 
-	return fn.ExecCmd("telepresence status", nil, true)
+	shell, ok := os.LookupEnv("SHELL")
+	if !ok {
+		shell = "sh"
+	}
 
-	return nil
+	if err := fn.ExecCmd(shell, envs, true); err != nil {
+		return err
+	}
+
+	return fn.ExecCmd("telepresence status", nil, true)
 }

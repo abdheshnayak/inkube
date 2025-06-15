@@ -1,6 +1,7 @@
 package init
 
 import (
+	"encoding/json"
 	"os"
 	"path"
 
@@ -85,17 +86,45 @@ func run() error {
 			return err
 		}
 
-		b, err := yaml.Marshal(config.Config{
-			Namespace: ns.Name,
-			Name:      dep.Name,
-			Container: cont.Name,
-			Version:   "v1",
-			Intercept: true,
+		devBoxDefaultStr := `{
+    "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.14.2/.schema/devbox.schema.json",
+    "packages": [],
+    "shell": {
+      "init_hook": [
+        "echo 'Welcome to devbox!' > /dev/null"
+      ],
+      "scripts": {
+        "test": [
+          "echo \"Error: no test specified\" && exit 1"
+        ]
+      }
+    }
+  }`
+		devBoxDefault := map[string]any{}
+		if err := json.Unmarshal([]byte(devBoxDefaultStr), &devBoxDefault); err != nil {
+			return err
+		}
 
-			// not supported yet
-			Devbox:  false,
-			Loadenv: false,
+		b, err := yaml.Marshal(config.Config{
+			Version:   "v1",
+			Namespace: ns.Name,
+			Intercept: config.Intercept{
+				Enabled: true,
+				Name:    dep.Name,
+			},
+			Devbox: config.Devbox{
+				Enabled: true,
+				Config:  devBoxDefault,
+			},
+			LoadEnv: config.LoadEnv{
+				Container: cont.Name,
+				Enabled:   true,
+			},
+			LocalEnvs: map[string]string{
+				"INKUBE": "true",
+			},
 		})
+
 		if err != nil {
 			return err
 		}

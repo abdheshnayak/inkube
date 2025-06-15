@@ -25,11 +25,11 @@ func Run(_ *cobra.Command, args []string) error {
 	cfg := config.Singleton()
 
 	please := "please run `inkube switch` to set the app name, namespace and container"
-	if cfg.Name == "" {
+	if cfg.Intercept.Name == "" {
 		return fn.Errorf("deployment name is not set, %s", please)
 	}
 
-	if cfg.Container == "" {
+	if cfg.LoadEnv.Container == "" {
 		return fn.Errorf("container is not set, %s", please)
 	}
 
@@ -47,24 +47,29 @@ func Run(_ *cobra.Command, args []string) error {
 		}
 	}()
 
-	if cfg.Intercept {
-		if err := fn.ExecCmd(fmt.Sprintf("telepresence intercept %s", cfg.Name), nil, true); err != nil {
+	if cfg.Intercept.Enabled {
+		if err := fn.ExecCmd(fmt.Sprintf("telepresence intercept %s", cfg.Intercept.Name), nil, true); err != nil {
 			return err
 		}
 
 		defer func() {
-			if err := fn.ExecCmd(fmt.Sprintf("telepresence leave %s", cfg.Name), nil, true); err != nil {
+			if err := fn.ExecCmd(fmt.Sprintf("telepresence leave %s", cfg.Intercept.Name), nil, true); err != nil {
 				fn.PrintError(err)
 			}
 		}()
 	}
 
 	var envs map[string]string
-	if cfg.Loadenv {
+	if cfg.LoadEnv.Enabled {
 		kubeclient := kube.Singleton()
 
+		name := cfg.Intercept.Name
+		if cfg.LoadEnv.Name != nil {
+			name = *cfg.LoadEnv.Name
+		}
+
 		var err error
-		envs, err = kubeclient.GetEnvs(cfg.Namespace, cfg.Name, cfg.Container)
+		envs, err = kubeclient.GetEnvs(cfg.Namespace, name, cfg.LoadEnv.Container)
 		if err != nil {
 			return err
 		}

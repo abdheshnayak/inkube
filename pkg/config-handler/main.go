@@ -88,7 +88,7 @@ func WriteConfig(path string, v any, perm fs.FileMode) error {
 }
 
 // FillConfig updates src with values from dest
-func fillConfig(src *yaml.MapSlice, dest interface{}) error {
+func fillConfig(src *yaml.MapSlice, dest any) error {
 	// Marshal dest to YAML
 	destBytes, err := yaml.Marshal(dest)
 	if err != nil {

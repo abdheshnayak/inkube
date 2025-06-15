@@ -66,8 +66,9 @@ func run() error {
 	}
 
 	cfg.Namespace = ns.Name
-	cfg.Name = dep.Name
-	cfg.Container = cont.Name
+	cfg.Intercept.Name = dep.Name
+	cfg.LoadEnv.Container = cont.Name
+	cfg.LoadEnv.Enabled = true
 
 	return cfg.Write()
 }

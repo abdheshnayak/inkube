@@ -1,0 +1,17 @@
+version: '3'
+
+tasks:
+  default:
+    cmds:
+      - nodemon -q -e 'go' --signal SIGTERM --exec 'task build'
+
+  build:
+    silent: true
+    cmds:
+      - echo "💿 compiling..."
+      - go build -o bin/inkube .
+      - echo "✅ finished compiling"
+  run:
+    cmds:
+      - task: build
+      - bin/inkube

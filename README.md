@@ -50,6 +50,9 @@ go install github.com/abdheshnayak/inkube@latest
 ```bash
 # create a new inkube config file
 inkube init
+
+# create a new devbox config file
+devbox init
 ```
 
 This command will create a `inkube.yaml` file in the current directory, which will be used to store the configuration for inkube.

@@ -46,25 +46,35 @@ go install github.com/abdheshnayak/inkube@latest
 inkube init
 ```
 
+This command will create a `inkube.yaml` file in the current directory, which will be used to store the configuration for inkube.
+
 ```bash
 # switch to a different namespace and context
 inkube switch
 ```
+
+This command will prompt you to select a namespace and context from the list of available namespaces and contexts.
 
 ```bash
 # start a live development session
 inkube dev
 ```
 
+This command will start a live development session, intercepting the selected pod and connecting to it. and also bring environment variables of that container.
+
 ```bash
 # intercept a running pod
 inkube intercept
 ```
 
+This command will intercept a running pod and connect to it.
+
+
 ```bash
 # leave an intercepted pod
 inkube leave
 ```
+This command will close interception from the pod, and acutual service will start running.
 
 ```bash
 # quit the live development session
@@ -75,9 +85,11 @@ exit # when you will exit the shell, the session will be quit
 inkube quit
 ```
 
+This command will quit the live development session. including connection, interception and env vars.
+
 ---
 
 ## 📝 License
 
 Copyright © 2025 [Abhishek Nayak](https://github.com/abdheshnayak).<br />
-This project is [MIT](./LICENSE) licensed.
+This project is [Apache 2.0](./LICENSE) licensed.

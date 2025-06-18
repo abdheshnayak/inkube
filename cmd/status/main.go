@@ -1,7 +1,10 @@
 package status
 
 import (
+	"os"
+
 	"github.com/abdheshnayak/inkube/pkg/fn"
+	"github.com/abdheshnayak/inkube/pkg/ui/text"
 	"github.com/spf13/cobra"
 )
 
@@ -15,6 +18,30 @@ var Cmd = &cobra.Command{
 	},
 }
 
-func Run(_ *cobra.Command, args []string) error {
-	return fn.ExecCmd("telepresence status", nil, true)
+func Run(cmd *cobra.Command, args []string) error {
+	if fn.ParseBoolFlag(cmd, "simple") {
+		s, ok := os.LookupEnv("INKUBE")
+		if ok && s == "true" {
+			fn.Logf(text.Blue("(inkube)"))
+		} else {
+			fn.Logf(text.Blue("(not inkube)"))
+		}
+		return nil
+	}
+
+	if err := fn.ExecCmd("telepresence status", nil, true); err != nil {
+		return err
+	}
+
+	s, ok := os.LookupEnv("INKUBE")
+	if ok && s == "true" {
+		fn.Log(text.Blue("\n\nYou are in inkube session"))
+	} else {
+		fn.Log(text.Blue("\n\nYou are not in inkube session"))
+	}
+	return nil
+}
+
+func init() {
+	Cmd.Flags().BoolP("simple", "s", false, "simple output")
 }

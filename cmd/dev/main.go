@@ -127,6 +127,7 @@ func Run(_ *cobra.Command, args []string) error {
 		// cmd.Env = []string{}
 	}
 
+	envs["INKUBE"] = "true"
 	shell, ok := os.LookupEnv("SHELL")
 	if !ok {
 		shell = "sh"

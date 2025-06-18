@@ -28,7 +28,7 @@
 
 ![Architecture](./arch.png)
 
-### Prerequisites
+### ⚙️ Prerequisites
 
 - kubeconfig file
 - [telepresence](https://telepresence.io/docs/install/client)

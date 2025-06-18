@@ -10,7 +10,7 @@ import (
 
 var Cmd = &cobra.Command{
 	Use:   "intercept",
-	Short: "it will intercept the deployment and connect to it",
+	Short: "intercept the deployment and tunnel all traffic to the local machine",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := Run(cmd, args); err != nil {
 			fn.PrintError(err)

@@ -10,7 +10,7 @@ import (
 
 var Cmd = &cobra.Command{
 	Use:   "quit",
-	Short: "quit",
+	Short: "close running telepresence session, and quit intercept if active",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := Run(cmd, args); err != nil {
 			fn.PrintError(err)

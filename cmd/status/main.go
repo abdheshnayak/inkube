@@ -10,7 +10,7 @@ import (
 
 var Cmd = &cobra.Command{
 	Use:   "status",
-	Short: "status",
+	Short: "get status of inkube session",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := Run(cmd, args); err != nil {
 			fn.PrintError(err)

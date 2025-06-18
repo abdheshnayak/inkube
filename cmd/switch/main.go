@@ -1,6 +1,8 @@
 package sw
 
 import (
+	"os"
+
 	"github.com/abdheshnayak/inkube/pkg/config"
 	"github.com/abdheshnayak/inkube/pkg/fn"
 	"github.com/abdheshnayak/inkube/pkg/kube"
@@ -14,7 +16,7 @@ import (
 
 var Cmd = &cobra.Command{
 	Use:   "switch",
-	Short: "switch",
+	Short: "switch the app, you are working on",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := run(); err != nil {
 			fn.PrintError(err)
@@ -23,6 +25,11 @@ var Cmd = &cobra.Command{
 }
 
 func run() error {
+	s, ok := os.LookupEnv("INKUBE")
+	if ok && s == "true" {
+		return fn.Error("you are already in inkube session, please exit the session first")
+	}
+
 	kubeClient := kube.Singleton()
 
 	cfg := config.Singleton()

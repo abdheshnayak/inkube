@@ -18,7 +18,7 @@ import (
 
 var Cmd = &cobra.Command{
 	Use:   "dev",
-	Short: "get dev shell, with cluster connection, ",
+	Short: "start devlopment shell, you will get cluster connection, packages, and env vars of deployed app",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := Run(cmd, args); err != nil {
 			fn.PrintError(err)

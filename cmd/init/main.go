@@ -19,7 +19,7 @@ import (
 
 var Cmd = &cobra.Command{
 	Use:   "init",
-	Short: "init",
+	Short: "initialize inkube config",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := run(); err != nil {
 			fn.PrintError(err)

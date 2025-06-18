@@ -38,6 +38,9 @@
 
 > Please make sure you fullfill the prerequisites before using inkube.
 
+
+> ⚠️ Do not use in production clusters, this is only for development clusters and making devlopment easier.
+
 ### 📦 Installation
 
 ```bash

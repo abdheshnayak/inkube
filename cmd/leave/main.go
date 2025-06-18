@@ -10,7 +10,7 @@ import (
 
 var Cmd = &cobra.Command{
 	Use:   "leave",
-	Short: "it will leave the intercepted deployment",
+	Short: "close intercept, if active",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := Run(cmd, args); err != nil {
 			fn.PrintError(err)

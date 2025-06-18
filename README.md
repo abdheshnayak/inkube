@@ -28,9 +28,15 @@
 
 ![Architecture](./arch.png)
 
-> ⚠️ inkube is currently in **development**.
+### Prerequisites
 
+- kubeconfig file
+- [telepresence](https://telepresence.io/docs/install/client)
+- [devbox](https://www.jetify.com/docs/devbox/installing_devbox)
+- telepresence setup on cluster `telepresence helm install`
+- [nix](https://nixos.org/download/) will be automatically installed by devbox
 
+> Please make sure you fullfill the prerequisites before using inkube.
 
 ### 📦 Installation
 
@@ -93,3 +99,6 @@ This command will quit the live development session. including connection, inter
 
 Copyright © 2025 [Abhishek Nayak](https://github.com/abdheshnayak).<br />
 This project is [Apache 2.0](./LICENSE) licensed.
+
+
+> ⚠️ inkube is currently in **development**.

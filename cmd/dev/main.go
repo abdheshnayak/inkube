@@ -26,7 +26,7 @@ var Cmd = &cobra.Command{
 	},
 }
 
-func Run(_ *cobra.Command, args []string) error {
+func Run(cmd *cobra.Command, args []string) error {
 
 	cfg := config.Singleton()
 
@@ -83,7 +83,9 @@ func Run(_ *cobra.Command, args []string) error {
 		}
 
 		var err error
-		envs, err = kubeclient.GetEnvs(cfg.Namespace, name, cfg.LoadEnv.Container)
+
+		refetch := fn.ParseBoolFlag(cmd, "refetch")
+		envs, err = kubeclient.GetEnvs(cfg.Namespace, name, cfg.LoadEnv.Container, refetch)
 		if err != nil {
 			return err
 		}
@@ -141,4 +143,8 @@ func Run(_ *cobra.Command, args []string) error {
 
 	fn.Log(text.Blue("[#] exited from inkube shell"))
 	return nil
+}
+
+func init() {
+	Cmd.Flags().BoolP("refetch", "r", false, "refetch env vars from cluster")
 }

@@ -3,13 +3,18 @@ package kube
 import (
 	"context"
 	"fmt"
+	"maps"
 	"os"
+	"path"
 	"path/filepath"
 	"sync"
 	"time"
 
+	"github.com/abdheshnayak/inkube/flags"
+	"github.com/abdheshnayak/inkube/pkg/egob"
 	"github.com/abdheshnayak/inkube/pkg/fn"
 	"github.com/abdheshnayak/inkube/pkg/ui/spinner"
+	"github.com/abdheshnayak/inkube/pkg/ui/text"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -37,10 +42,12 @@ func Singleton() *Client {
 
 type Client struct {
 	*kubernetes.Clientset
+	cancel context.CancelFunc
 }
 
 func (c *Client) Ctx() context.Context {
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cf := context.WithTimeout(context.Background(), 30*time.Second)
+	c.cancel = cf
 	return ctx
 }
 
@@ -49,7 +56,10 @@ func NewClient() (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Client{client}, nil
+	return &Client{
+		Clientset: client,
+		cancel:    nil,
+	}, nil
 }
 
 func getClient() (*kubernetes.Clientset, error) {
@@ -84,11 +94,29 @@ func getRestConfig() (*rest.Config, error) {
 	return config, nil
 }
 
-func (c *Client) GetEnvs(namespace, name, contname string) (map[string]string, error) {
+func (c *Client) GetEnvs(namespace, name, contname string, refetch bool) (map[string]string, error) {
 	defer spinner.Client.UpdateMessage("Getting environment variables")()
+	cacheDir := flags.GetCacheDir()
+	fileNamePath := path.Join(cacheDir, fmt.Sprintf("%s-%s-%s.secret.cache", namespace, name, contname))
+
+	if !refetch {
+		if evs, err := func() (map[string]string, error) {
+			b, err := os.ReadFile(fileNamePath)
+			if err != nil {
+				return nil, err
+			}
+			resp := make(map[string]string)
+			if err := egob.Unmarshal(b, &resp); err != nil {
+				return nil, err
+			}
+			return resp, nil
+		}(); err == nil {
+			fn.Log(text.Blue("[#] using cached env vars"))
+			return evs, nil
+		}
+	}
 
 	envs := make(map[string]string)
-
 	// Get the Deployment
 	deploy, err := c.AppsV1().Deployments(namespace).Get(c.Ctx(), name, v1.GetOptions{})
 	if err != nil {
@@ -144,9 +172,7 @@ func (c *Client) GetEnvs(namespace, name, contname string) (map[string]string, e
 			if err != nil {
 				return nil, err
 			}
-			for k, v := range cm.Data {
-				envs[k] = v
-			}
+			maps.Copy(envs, cm.Data)
 		}
 		if envFrom.SecretRef != nil {
 			secret, err := c.CoreV1().Secrets(namespace).Get(c.Ctx(), envFrom.SecretRef.Name, v1.GetOptions{})
@@ -159,6 +185,15 @@ func (c *Client) GetEnvs(namespace, name, contname string) (map[string]string, e
 		}
 	}
 
+	b, err := egob.Marshal(envs)
+	if err != nil {
+		fn.Log(text.Yellow("[!] failed to marshal env vars"))
+		return envs, err
+	}
+
+	if err := os.WriteFile(fileNamePath, b, 0o644); err != nil {
+		fn.Log(text.Yellow("[!] failed to env vars to cache"))
+	}
 	return envs, nil
 }
 

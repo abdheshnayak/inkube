@@ -1,6 +1,9 @@
-# inkube
+# inkube - Be in the cluster, without being in the cluster.
 
-> Be in the cluster, without being in the cluster. Develop locally with real cluster context.
+![Logo](./logo.png)
+<img src="./demo.gif" style="width:100px;height:100px;">
+
+> Run your services locally while mirroring the runtime environment of a Kubernetes pod. Get cluster access, environment variables and also tunnel traffic to your local machine from kubernetes cluster.
 
 ---
 

@@ -1,4 +1,4 @@
-package intercept
+package disconnect
 
 import (
 	"github.com/abdheshnayak/inkube/pkg/config"
@@ -8,8 +8,8 @@ import (
 )
 
 var Cmd = &cobra.Command{
-	Use:   "intercept",
-	Short: "intercept the deployment and tunnel all traffic to the local machine",
+	Use:   "disconnect",
+	Short: "disconnect from the cluster",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := Run(cmd, args); err != nil {
 			fn.PrintError(err)
@@ -18,7 +18,6 @@ var Cmd = &cobra.Command{
 }
 
 func Run(_ *cobra.Command, args []string) error {
-
 	cfg := config.Singleton()
 
 	please := "please run `inkube switch` to set the app name, namespace and container"
@@ -34,6 +33,9 @@ func Run(_ *cobra.Command, args []string) error {
 		return fn.Errorf("namespace is not set, %s", please)
 	}
 
-	connect.SClient().Intercept(cfg.Bridge.Name, cfg.Namespace)
+	if err := connect.SClient().Disconnect(); err != nil {
+		return err
+	}
+
 	return nil
 }

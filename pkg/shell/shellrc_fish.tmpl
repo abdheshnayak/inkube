@@ -1,0 +1,75 @@
+{{- /*
+
+This template defines the shellrc file that the inkube shell will run at
+startup when using the fish shell.
+
+It does _not_ include the user's original fish config, because unlike other
+shells, fish has multiple files as part of its config, and it's difficult
+to start a fish shell with a custom fish config. Instead, we let fish read
+the user's original config directly, and run these commands next.
+
+Inkube needs to ensure that the shell's PATH, prompt, and a few other things are
+set correctly after the user's shellrc runs. The commands to do this are in
+the "Inkube Post-init Hook" section.
+
+This file is useful for debugging shell errors, so try to keep the generated
+content readable.
+
+*/ -}}
+
+# Begin Inkube Post-init Hook
+
+{{- /*
+NOTE: fish_add_path doesn't play nicely with colon:separated:paths, and I'd rather not
+add string-splitting logic here nor parametrize computeNixEnv based on the shell being
+used. So here we (ab)use the fact that using "export" ahead of the variable definition
+makes fish do exactly what we want and behave in the same way as other shells.
+*/ -}}
+{{ with .ExportEnv }}
+{{ . }}
+{{- end }}
+
+{{- /*
+Set the history file by setting fish_history. This is not exactly the same as with other
+shells, because we're not setting the file, but rather the session name, but it's a good
+enough approximation for now.
+*/ -}}
+{{- if .HistoryFile }}
+set fish_history inkube
+{{- end }}
+
+# If the user hasn't specified they want to handle the prompt themselves,
+# prepend to the prompt to make it clear we're in a inkube shell.
+if not set -q inkube_no_prompt
+    functions -c fish_prompt __inkube_fish_prompt_orig
+    function fish_prompt
+        echo "$(inkube status -p)" (__inkube_fish_prompt_orig)
+    end
+end
+
+{{- if .ShellStartTime }}
+# log that the shell is ready now!
+inkube log shell-ready {{ .ShellStartTime }}
+{{ end }}
+
+# End Inkube Post-init Hook
+
+# Switch to the directory where inkube.json config is
+set workingDir (pwd)
+cd "{{ .ProjectDir }}" || exit
+
+# Source the hooks file, which contains the project's init hooks and plugin hooks.
+source "{{ .HooksFilePath }}"
+
+cd "$workingDir" || exit
+
+{{- if .ShellStartTime }}
+# log that the shell is interactive now!
+inkube log shell-interactive {{ .ShellStartTime }}
+{{ end }}
+
+# Add refresh alias (only if it doesn't already exist)
+if not type {{ .RefreshAliasName }} >/dev/null 2>&1
+  export {{ .RefreshAliasEnvVar }}='{{ .RefreshCmd }}'
+  alias {{ .RefreshAliasName }}='{{ .RefreshCmd }}'
+end

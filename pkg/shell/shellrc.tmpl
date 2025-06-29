@@ -1,0 +1,43 @@
+{{- if .OriginalInitPath -}}
+if [ -f {{ .OriginalInitPath }} ]; then
+  . "{{ .OriginalInitPath }}"
+fi
+{{ end -}}
+
+# Begin Inkube Post-init Hook
+
+{{ with .ExportEnv -}}
+{{ . }}
+{{- end }}
+
+{{- /*
+We need to set HISTFILE here because when starting a new shell, the shell will
+ignore the existing value of HISTFILE.
+*/ -}}
+{{- if .HistoryFile }}
+HISTFILE="{{ .HistoryFile }}"
+{{- end }}
+
+# If the user hasn't specified they want to handle the prompt themselves,
+# prepend to the prompt to make it clear we're in a inkube shell.
+if [ -z "$INKUBE_NO_PROMPT" ]; then
+  export PS1="\$(inkube status -p) $PS1"
+fi
+
+{{- if .ShellStartTime }}
+# log that the shell is ready now!
+inkube log shell-ready {{ .ShellStartTime }}
+{{ end }}
+
+# End Inkube Post-init Hook
+
+# Run plugin and user init hooks from the inkube.json directory.
+working_dir="$(pwd)"
+cd "{{ .ProjectDir }}" || exit
+
+cd "$working_dir" || exit
+
+{{- if .ShellStartTime }}
+# log that the shell is interactive now!
+inkube log shell-interactive {{ .ShellStartTime }}
+{{ end }}

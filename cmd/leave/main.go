@@ -1,9 +1,8 @@
 package leave
 
 import (
-	"fmt"
-
 	"github.com/abdheshnayak/inkube/pkg/config"
+	"github.com/abdheshnayak/inkube/pkg/connect"
 	"github.com/abdheshnayak/inkube/pkg/fn"
 	"github.com/spf13/cobra"
 )
@@ -23,7 +22,7 @@ func Run(_ *cobra.Command, args []string) error {
 	cfg := config.Singleton()
 
 	please := "please run `inkube switch` to set the app name, namespace and container"
-	if cfg.Tele.Name == "" {
+	if cfg.Bridge.Name == "" {
 		return fn.Errorf("deployment name is not set, %s", please)
 	}
 
@@ -35,13 +34,8 @@ func Run(_ *cobra.Command, args []string) error {
 		return fn.Errorf("namespace is not set, %s", please)
 	}
 
-	cfg.Tele.Intercept = false
-	if err := cfg.Write(); err != nil {
+	if err := connect.SClient().Leave(cfg.Bridge.Name, cfg.Namespace); err != nil {
 		return err
-	}
-
-	if err := fn.ExecCmd(fmt.Sprintf("telepresence leave %s", cfg.Tele.Name), nil, true); err != nil {
-		fn.PrintError(err)
 	}
 
 	return nil

@@ -20,8 +20,9 @@ var Cmd = &cobra.Command{
 
 func Run(_ *cobra.Command, args []string) error {
 	cfg := config.Singleton()
-	if cfg.Tele.Intercept {
-		if err := fn.ExecCmd(fmt.Sprintf("telepresence leave %s", cfg.Tele.Name), nil, true); err != nil {
+
+	if cfg.Bridge.Intercept {
+		if err := fn.ExecCmd(fmt.Sprintf("telepresence leave %s", cfg.Bridge.Name), nil, true); err != nil {
 			fn.PrintError(err)
 		}
 	}

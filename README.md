@@ -34,9 +34,8 @@
 ### ⚙️ Prerequisites
 
 - kubeconfig file
-- [telepresence](https://telepresence.io/docs/install/client)
+- [kubevpn](https://github.com/kubenetworks/kubevpn)
 - [devbox](https://www.jetify.com/docs/devbox/installing_devbox)
-- telepresence setup on cluster `telepresence helm install`
 - [nix](https://nixos.org/download/) will be automatically installed by devbox
 
 > Please make sure you fullfill the prerequisites before using inkube.
@@ -54,11 +53,11 @@ go install github.com/abdheshnayak/inkube@latest
 ### 🚀 Usage
 
 ```bash
-# create a new inkube config file
-inkube init
-
 # create a new devbox config file
 devbox init
+
+# create a new inkube config file
+inkube init
 ```
 
 This command will create a `inkube.yaml` file in the current directory, which will be used to store the configuration for inkube.
@@ -76,6 +75,20 @@ inkube dev
 ```
 
 This command will start a live development session, intercepting the selected pod and connecting to it. and also bring environment variables of that container.
+
+```bash
+# connect to cluster based on inkube config
+inkube connect
+```
+
+This command will connect to the cluster based on the configuration in the inkube.yaml file.
+
+```
+# disconnect from cluster
+inkube disconnect
+```
+
+This command will disconnect from the cluster, and quit the live development session.
 
 ```bash
 # intercept a running pod

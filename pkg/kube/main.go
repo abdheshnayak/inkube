@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"maps"
+	"net"
 	"os"
 	"path"
-	"path/filepath"
 	"sync"
 	"time"
 
@@ -16,11 +16,11 @@ import (
 	"github.com/abdheshnayak/inkube/pkg/ui/spinner"
 	"github.com/abdheshnayak/inkube/pkg/ui/text"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/util/homedir"
 )
 
 var (
@@ -77,20 +77,16 @@ func getRestConfig() (*rest.Config, error) {
 		return config, nil
 	}
 
-	// 2. Otherwise, use kubeconfig from KUBECONFIG or default path
-	var kubeconfigPath string
-	if env := os.Getenv("KUBECONFIG"); env != "" {
-		kubeconfigPath = env
-	} else {
-		if home := homedir.HomeDir(); home != "" {
-			kubeconfigPath = filepath.Join(home, ".kube", "config")
-		}
+	// 2. Use KUBECONFIG env var or default path
+	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules() // supports $KUBECONFIG and ~/.kube/config
+	configOverrides := &clientcmd.ConfigOverrides{}
+	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
+
+	config, err := kubeConfig.ClientConfig()
+	if err != nil {
+		return nil, fmt.Errorf("failed to load kubeconfig: %w", err)
 	}
 
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfigPath)
-	if err != nil {
-		return nil, err
-	}
 	return config, nil
 }
 
@@ -215,3 +211,52 @@ func (c *Client) GetEnvs(namespace, name, contname string, refetch bool) (map[st
 //
 // 	return envs, nil
 // }
+
+func IsConnected() bool {
+	host := "kubernetes.default.svc.cluster.local"
+
+	ctx, cf := context.WithTimeout(context.Background(), time.Millisecond*50)
+	defer cf()
+
+	resolver := net.Resolver{}
+	ips, err := resolver.LookupIP(ctx, "ip4", host)
+	if err != nil {
+		return false
+	}
+
+	return len(ips) > 0
+}
+
+func (c *Client) GetClusterName() (string, error) {
+	kubeConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+		clientcmd.NewDefaultClientConfigLoadingRules(),
+		&clientcmd.ConfigOverrides{},
+	)
+
+	rawCfg, err := kubeConfig.RawConfig()
+	if err != nil {
+		return "", err
+	}
+
+	clusterName := rawCfg.CurrentContext
+	if clusterName == "" {
+		return "", fmt.Errorf("no current context found")
+	}
+
+	return rawCfg.Contexts[rawCfg.CurrentContext].Cluster, nil
+}
+
+func (c *Client) EnsureNamespace(namespace string) error {
+	_, err := c.CoreV1().Namespaces().Get(c.Ctx(), namespace, v1.GetOptions{})
+	if err != nil {
+		if !errors.IsNotFound(err) {
+			return err
+		}
+		_, err = c.CoreV1().Namespaces().Create(c.Ctx(), &corev1.Namespace{
+			ObjectMeta: v1.ObjectMeta{
+				Name: namespace,
+			},
+		}, v1.CreateOptions{})
+	}
+	return err
+}

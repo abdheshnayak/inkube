@@ -22,13 +22,13 @@ func Run(cmd *cobra.Command, args []string) error {
 
 	if fn.ParseBoolFlag(cmd, "prompt") {
 		connectedStr := "✅"
-		interceptedStr := "✅"
+		interceptedStr := "🕵️➡️💻"
 		if !connected {
 			connectedStr = "❌"
 		}
 
 		if !bool {
-			interceptedStr = "❌"
+			interceptedStr = ""
 		}
 		fn.Printf(text.Blue("%s(inkube)%s"), connectedStr, interceptedStr)
 		return nil

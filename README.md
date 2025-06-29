@@ -34,9 +34,8 @@
 ### ⚙️ Prerequisites
 
 - kubeconfig file
-- [telepresence](https://telepresence.io/docs/install/client)
+- [kubevpn](https://github.com/kubenetworks/kubevpn)
 - [inkube](https://www.jetify.com/docs/inkube/installing_inkube)
-- telepresence setup on cluster `telepresence helm install`
 - [nix](https://nixos.org/download/) will be automatically installed by inkube
 
 > Please make sure you fullfill the prerequisites before using inkube.

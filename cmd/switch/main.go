@@ -72,10 +72,10 @@ func run() error {
 		return err
 	}
 
+	cfg.Connect = true
 	cfg.Namespace = ns.Name
-	cfg.Tele.Intercept = false
-	cfg.Tele.Connect = true
-	cfg.Tele.Name = dep.Name
+	cfg.Bridge.Intercept = false
+	cfg.Bridge.Name = dep.Name
 
 	cfg.LoadEnv.Container = cont.Name
 	cfg.LoadEnv.Enabled = true

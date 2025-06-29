@@ -8,18 +8,18 @@ type LoadEnv struct {
 	Overrides map[string]string `yaml:"overrides"`
 }
 
-type TeleConfig struct {
+type BridgeConfig struct {
 	Name string `yaml:"name"`
 
-	Connect   bool `yaml:"connect"`
 	Intercept bool `yaml:"intercept"`
 }
 
 type Config struct {
 	Version   string `yaml:"version"`
 	Namespace string `yaml:"namespace"`
+	Connect   bool   `yaml:"connect"`
 
-	Tele TeleConfig `yaml:"telepresence"`
+	Bridge BridgeConfig `yaml:"bridge"`
 
 	Devbox  bool    `yaml:"devbox"`
 	LoadEnv LoadEnv `yaml:"loadEnv"`

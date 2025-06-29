@@ -82,11 +82,11 @@ func run() error {
 	}
 
 	devBoxDefaultStr := `{
-    "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.14.2/.schema/devbox.schema.json",
+    "$schema": "https://raw.githubusercontent.com/jetify-com/inkube/0.14.2/.schema/inkube.schema.json",
     "packages": [],
     "shell": {
       "init_hook": [
-        "echo 'Welcome to devbox!' > /dev/null"
+        "echo 'Welcome to inkube!' > /dev/null"
       ],
       "scripts": {
         "test": [
@@ -101,6 +101,7 @@ func run() error {
 	}
 
 	b, err := yaml.Marshal(config.Config{
+		Connect:   true,
 		Version:   "v1",
 		Namespace: ns.Name,
 		LoadEnv: config.LoadEnv{
@@ -110,9 +111,8 @@ func run() error {
 				"INKUBE": "true",
 			},
 		},
-		Tele: config.TeleConfig{
+		Bridge: config.BridgeConfig{
 			Name:      dep.Name,
-			Connect:   true,
 			Intercept: false,
 		},
 		Devbox: true,

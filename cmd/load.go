@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"github.com/abdheshnayak/inkube/cmd/connect"
 	"github.com/abdheshnayak/inkube/cmd/dev"
+	"github.com/abdheshnayak/inkube/cmd/disconnect"
 	i "github.com/abdheshnayak/inkube/cmd/init"
 	"github.com/abdheshnayak/inkube/cmd/intercept"
 	"github.com/abdheshnayak/inkube/cmd/leave"
@@ -22,4 +24,7 @@ func Load(root *cobra.Command) {
 
 	root.AddCommand(intercept.Cmd)
 	root.AddCommand(leave.Cmd)
+
+	root.AddCommand(connect.Cmd)
+	root.AddCommand(disconnect.Cmd)
 }

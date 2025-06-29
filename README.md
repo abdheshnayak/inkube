@@ -35,9 +35,9 @@
 
 - kubeconfig file
 - [telepresence](https://telepresence.io/docs/install/client)
-- [devbox](https://www.jetify.com/docs/devbox/installing_devbox)
+- [inkube](https://www.jetify.com/docs/inkube/installing_inkube)
 - telepresence setup on cluster `telepresence helm install`
-- [nix](https://nixos.org/download/) will be automatically installed by devbox
+- [nix](https://nixos.org/download/) will be automatically installed by inkube
 
 > Please make sure you fullfill the prerequisites before using inkube.
 
@@ -57,8 +57,8 @@ go install github.com/abdheshnayak/inkube@latest
 # create a new inkube config file
 inkube init
 
-# create a new devbox config file
-devbox init
+# create a new inkube config file
+inkube init
 ```
 
 This command will create a `inkube.yaml` file in the current directory, which will be used to store the configuration for inkube.

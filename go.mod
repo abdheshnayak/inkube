@@ -3,6 +3,7 @@ module github.com/abdheshnayak/inkube
 go 1.24.3
 
 require (
+	al.essio.dev/pkg/shellescape v1.6.0
 	github.com/adrg/xdg v0.5.3
 	github.com/briandowns/spinner v1.23.2
 	github.com/charmbracelet/bubbles v0.21.0
@@ -11,8 +12,10 @@ require (
 	github.com/jedib0t/go-pretty/v6 v6.6.7
 	github.com/koki-develop/go-fzf v0.15.0
 	github.com/martinlindhe/notify v0.0.0-20181008203735-20632c9a275a
+	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.9.1
 	github.com/ztrue/tracerr v0.4.0
+	go.uber.org/dig v1.19.0
 	gopkg.in/yaml.v2 v2.4.0
 	k8s.io/api v0.33.1
 	k8s.io/apimachinery v0.33.1
@@ -58,7 +61,6 @@ require (
 	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect

@@ -24,10 +24,10 @@ func main() {
 func Run() error {
 	_, err := exec.LookPath("devbox")
 	if err != nil {
-		return fn.Errorf("devbox not found, please ensure devbox is installed")
+		return fn.Errorf("inkube not found, please ensure inkube is installed")
 	}
 
-	_, err = exec.LookPath("telepresence")
+	_, err = exec.LookPath("kubevpn")
 	if err != nil {
 		return fn.Errorf("telepresence not found, please ensure telepresence is installed")
 	}

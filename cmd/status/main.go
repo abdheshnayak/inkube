@@ -1,8 +1,7 @@
 package status
 
 import (
-	"os"
-
+	"github.com/abdheshnayak/inkube/pkg/connect"
 	"github.com/abdheshnayak/inkube/pkg/fn"
 	"github.com/abdheshnayak/inkube/pkg/ui/text"
 	"github.com/spf13/cobra"
@@ -19,29 +18,34 @@ var Cmd = &cobra.Command{
 }
 
 func Run(cmd *cobra.Command, args []string) error {
-	if fn.ParseBoolFlag(cmd, "simple") {
-		s, ok := os.LookupEnv("INKUBE")
-		if ok && s == "true" {
-			fn.Logf(text.Blue("(inkube)"))
-		} else {
-			fn.Logf(text.Blue("(not inkube)"))
+	connected, bool, err := connect.SClient().Status()
+
+	if fn.ParseBoolFlag(cmd, "prompt") {
+		connectedStr := "✅"
+		interceptedStr := "✅"
+		if !connected {
+			connectedStr = "❌"
 		}
+
+		if !bool {
+			interceptedStr = "❌"
+		}
+		fn.Printf(text.Blue("%s(inkube)%s"), connectedStr, interceptedStr)
 		return nil
 	}
-
-	if err := fn.ExecCmd("telepresence status", nil, true); err != nil {
+	if err != nil {
 		return err
 	}
 
-	s, ok := os.LookupEnv("INKUBE")
-	if ok && s == "true" {
-		fn.Log(text.Blue("\n\nYou are in inkube session"))
-	} else {
+	if !connected {
 		fn.Log(text.Blue("\n\nYou are not in inkube session"))
+		return nil
 	}
+
+	fn.Logf(text.Blue("You are connected to cluster"))
 	return nil
 }
 
 func init() {
-	Cmd.Flags().BoolP("simple", "s", false, "simple output")
+	Cmd.Flags().BoolP("prompt", "p", false, "output for prompt")
 }

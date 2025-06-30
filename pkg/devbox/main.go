@@ -66,7 +66,7 @@ func (d *devboxClient) ShellEnv() (map[string]string, error) {
 		parts := strings.SplitN(line, "=", 2)
 		if len(parts) == 2 {
 			if parts[0] == "PATH" {
-				envs[parts[0]] = fmt.Sprintf("%s:%s", os.Getenv("PATH"), envs[parts[0]])
+				envs[parts[0]] = fmt.Sprintf("%s:%s", os.Getenv("PATH"), parts[1])
 				continue
 			}
 

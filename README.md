@@ -15,6 +15,14 @@
 - Network **traffic to and from the pod is intercepted** and redirected to your local service.
 - You can **test, debug, and iterate** locally, with full cluster integration — no redeploys needed.
 
+### Example: init, dev, intercept, leave, exit
+
+![Demo](./static/demo.gif)
+
+### Example: Package Managers
+
+![Demo Package Managers](./static/demo-pkg.gif)
+
 ---
 
 ## ✨ Features

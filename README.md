@@ -125,6 +125,15 @@ This command will quit the live development session. including connection, inter
 
 ---
 
+### Example: init, dev, intercept, leave, exit
+
+![Demo](./static/demo.gif)
+
+### Example: Package Managers
+
+![Demo Package Managers](./static/demo-pkg.gif)
+
+
 ## 📝 License
 
 Copyright © 2025 [Abhishek Nayak](https://github.com/abdheshnayak).<br />

@@ -132,10 +132,5 @@ This command will quit the live development session. including connection, inter
 ### Package Manager
 ![Shell](./static/pkg.gif)
 
-## 📝 License
-
-Copyright © 2025 [Abhishek Nayak](https://github.com/abdheshnayak).<br />
-This project is [Apache 2.0](./LICENSE) licensed.
-
 
 > ⚠️ inkube is currently in **development**.

@@ -117,14 +117,20 @@ This command will quit the live development session. including connection, inter
 
 ---
 
-### Example: init, dev, intercept, leave, exit
+### Initialize
+![Initialize](./static/init.gif)
 
-![Demo](./static/demo.gif)
+### Access Development Shell
+![Shell](./static/shell.gif)
 
-### Example: Package Managers
+### Intercepting Traffic
+![Shell](./static/intercept.gif)
 
-![Demo Package Managers](./static/demo-pkg.gif)
+### Accessing Container Environments
+![Shell](./static/env.gif)
 
+### Package Manager
+![Shell](./static/pkg.gif)
 
 ## 📝 License
 

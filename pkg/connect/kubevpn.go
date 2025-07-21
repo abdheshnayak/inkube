@@ -9,10 +9,15 @@ import (
 	"github.com/abdheshnayak/inkube/pkg/fn"
 	"github.com/abdheshnayak/inkube/pkg/kube"
 	"github.com/abdheshnayak/inkube/pkg/ui/spinner"
+	"github.com/abdheshnayak/inkube/pkg/ui/text"
 )
 
 type KubeVpnClient struct {
 	managerNamespace string
+}
+
+func (c *KubeVpnClient) Quit() error {
+	return fn.ExecCmd("kubevpn quit", nil, true)
 }
 
 func (c *KubeVpnClient) EnsureDependencies() error {
@@ -124,7 +129,8 @@ func (c *KubeVpnClient) IsConnected() (*string, int, error) {
 }
 
 func (c *KubeVpnClient) Connect(ns string) error {
-	defer spinner.Client.UpdateMessage("connecting to cluster")()
+	// defer spinner.Client.UpdateMessage("connecting to cluster")()
+	fn.Log(text.Blue("[#] connecting to cluster"))
 	// ensure namespace exists
 	if err := kube.Singleton().EnsureNamespace(c.managerNamespace); err != nil {
 		return err

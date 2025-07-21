@@ -11,6 +11,10 @@ import (
 	"github.com/abdheshnayak/inkube/pkg/ui/spinner"
 )
 
+func (c *TeleClient) Quit() error {
+	return fn.ExecCmd("telepresence quit", nil, true)
+}
+
 func (c *TeleClient) EnsureDependencies() error {
 	_, err := exec.LookPath("telepresence")
 	if err != nil {

@@ -10,6 +10,8 @@ type ConnectClient interface {
 	Intercept(name string, ns string) error
 	Leave(name string, ns string) error
 
+	Quit() error
+
 	EnsureDependencies() error
 }
 

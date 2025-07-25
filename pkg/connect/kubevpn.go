@@ -4,15 +4,24 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"os"
 	"os/exec"
+	"time"
 
+	"github.com/abdheshnayak/inkube/flags"
+	"github.com/abdheshnayak/inkube/pkg/egob"
 	"github.com/abdheshnayak/inkube/pkg/fn"
 	"github.com/abdheshnayak/inkube/pkg/kube"
 	"github.com/abdheshnayak/inkube/pkg/ui/spinner"
+	"github.com/abdheshnayak/inkube/pkg/ui/text"
 )
 
 type KubeVpnClient struct {
 	managerNamespace string
+}
+
+func (c *KubeVpnClient) Quit() error {
+	return fn.ExecCmd("kubevpn quit", nil, true)
 }
 
 func (c *KubeVpnClient) EnsureDependencies() error {
@@ -24,10 +33,39 @@ func (c *KubeVpnClient) EnsureDependencies() error {
 }
 
 func (c *KubeVpnClient) Status() (connected, intercepted bool, err error) {
-	b, err := fn.Exec("kubevpn status -ojson", nil)
-	if err != nil {
-		return false, false, err
+	var b []byte
+	for {
+		s := flags.GetCacheDir()
+		cachePath := fmt.Sprintf("%s/kubevpn.json", s)
+		type KubeVpnStatus struct {
+			Data []byte
+			Time time.Time
+		}
+
+		b, err = os.ReadFile(cachePath)
+		if err == nil {
+			var status KubeVpnStatus
+			if err := egob.Unmarshal(b, &status); err == nil {
+				if time.Since(status.Time) < time.Second*10 {
+					b = status.Data
+					break
+				}
+			}
+		}
+
+		b, err = fn.Exec("kubevpn status -ojson", nil)
+		if err != nil {
+			return false, false, err
+		}
+
+		status := KubeVpnStatus{Data: b, Time: time.Now()}
+		if b2, err := egob.Marshal(status); err == nil {
+			os.WriteFile(cachePath, b2, 0644)
+		}
+
+		break
 	}
+
 	var status []struct {
 		ClusterId string `json:"ClusterID"`  // k3d-mycluster
 		Cluster   string `json:"Cluster"`    // k3d-mycluster
@@ -124,7 +162,8 @@ func (c *KubeVpnClient) IsConnected() (*string, int, error) {
 }
 
 func (c *KubeVpnClient) Connect(ns string) error {
-	defer spinner.Client.UpdateMessage("connecting to cluster")()
+	// defer spinner.Client.UpdateMessage("connecting to cluster")()
+	fn.Log(text.Blue("[#] connecting to cluster"))
 	// ensure namespace exists
 	if err := kube.Singleton().EnsureNamespace(c.managerNamespace); err != nil {
 		return err

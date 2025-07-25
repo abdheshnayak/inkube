@@ -1,9 +1,7 @@
 package quit
 
 import (
-	"fmt"
-
-	"github.com/abdheshnayak/inkube/pkg/config"
+	"github.com/abdheshnayak/inkube/pkg/connect"
 	"github.com/abdheshnayak/inkube/pkg/fn"
 	"github.com/spf13/cobra"
 )
@@ -19,13 +17,5 @@ var Cmd = &cobra.Command{
 }
 
 func Run(_ *cobra.Command, args []string) error {
-	cfg := config.Singleton()
-
-	if cfg.Bridge.Intercept {
-		if err := fn.ExecCmd(fmt.Sprintf("telepresence leave %s", cfg.Bridge.Name), nil, true); err != nil {
-			fn.PrintError(err)
-		}
-	}
-
-	return fn.ExecCmd("telepresence quit", nil, true)
+	return connect.SClient().Quit()
 }

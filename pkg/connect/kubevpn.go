@@ -16,6 +16,32 @@ import (
 	"github.com/abdheshnayak/inkube/pkg/ui/text"
 )
 
+type Connection struct {
+	ConnectionID string `json:"ConnectionID"`
+	Cluster      string `json:"Cluster"`
+	Kubeconfig   string `json:"Kubeconfig"`
+	Namespace    string `json:"Namespace"`
+	Status       string `json:"Status"`
+	Netif        string `json:"Netif"`
+	ProxyList    []struct {
+		ConnectionID string `json:"ConnectionID"`
+		Cluster      string `json:"Cluster"`
+		Kubeconfig   string `json:"Kubeconfig"`
+		Namespace    string `json:"Namespace"`
+		Workload     string `json:"Workload"`
+		RuleList     []struct {
+			LocalTunIPv4  string         `json:"LocalTunIPv4"`
+			LocalTunIPv6  string         `json:"LocalTunIPv6"`
+			CurrentDevice bool           `json:"CurrentDevice"`
+			PortMap       map[string]int `json:"PortMap"`
+		} `json:"RuleList"`
+	}
+}
+type KubeVpnStatus struct {
+	CurrentConnectionID string       `json:"CurrentConnectionID"`
+	List                []Connection `json:"List"`
+}
+
 type KubeVpnClient struct {
 	managerNamespace string
 }
@@ -28,6 +54,15 @@ func (c *KubeVpnClient) EnsureDependencies() error {
 	_, err := exec.LookPath("kubevpn")
 	if err != nil {
 		return fmt.Errorf("kubevpn not found, please ensure kubevpn is installed")
+	}
+	return nil
+}
+
+func (c *KubeVpnClient) cleanStatus() error {
+	s := flags.GetCacheDir()
+	cachePath := fmt.Sprintf("%s/kubevpn.json", s)
+	if err := os.Remove(cachePath); err != nil {
+		return err
 	}
 	return nil
 }
@@ -66,30 +101,7 @@ func (c *KubeVpnClient) Status() (connected, intercepted bool, err error) {
 		break
 	}
 
-	var status []struct {
-		ClusterId string `json:"ClusterID"`  // k3d-mycluster
-		Cluster   string `json:"Cluster"`    // k3d-mycluster
-		Mode      string `json:"Mode"`       // full
-		KubeConfg string `json:"KubeConfig"` // /Users/abdhesh/.kube/k3d.yaml
-		Namespace string `json:"Namespace"`  // test
-		Status    string `json:"Status"`     // connected
-		Netif     string `json:"Netif"`      // utun4
-		ProxyList []struct {
-			ClusterID  string `json:"ClusterID"`  // k3d-mycluster
-			Cluster    string `json:"Cluster"`    // k3d-mycluster
-			Kubeconfig string `json:"Kubeconfig"` // /Users/abdhesh/.kube/k3d.yaml
-			Namespace  string `json:"Namespace"`  // test
-			Workload   string `json:"Workload"`   // deployments.apps/nginx-deployment
-			RuleList   []struct {
-				LocalTunIPv4  string `json:"LocalTunIPv4"` // 198.19.0.101
-				LocalTunIPv6  string `json:"LocalTunIPv6"` // 2001:2::999a
-				CurrentDevice bool   `json:"CurrentDevice"`
-				PortMap       struct {
-					Port int `json:"80"`
-				} `json:"PortMap"`
-			} `json:"RuleList"`
-		} `json:"ProxyList"`
-	}
+	var status KubeVpnStatus
 
 	if bytes.TrimSpace(b) != nil {
 		if err := json.Unmarshal(b, &status); err != nil {
@@ -105,7 +117,7 @@ func (c *KubeVpnClient) Status() (connected, intercepted bool, err error) {
 	connected = false
 	intercepted = false
 
-	for _, s := range status {
+	for _, s := range status.List {
 		if s.Status == "connected" && cName == s.Cluster {
 			connected = true
 			for _, v := range s.ProxyList {
@@ -122,43 +134,34 @@ func (c *KubeVpnClient) Status() (connected, intercepted bool, err error) {
 	return connected, intercepted, nil
 }
 
-func (c *KubeVpnClient) IsConnected() (*string, int, error) {
+func (c *KubeVpnClient) IsConnected() (*string, *string, error) {
 	b, err := fn.Exec("kubevpn status -ojson", nil)
 	if err != nil {
-		return nil, 0, err
+		return nil, nil, err
 	}
-	var status []struct {
-		ClusterId string `json:"ClusterID"`
-		Cluster   string `json:"Cluster"`
-		Mode      string `json:"Mode"`
-		KubeConfg string `json:"KubeConfig"`
-		Namespace string `json:"Namespace"`
-		Status    string `json:"Status"`
-		Netif     string `json:"Netif"`
-	}
-
+	var status KubeVpnStatus
 	if bytes.TrimSpace(b) != nil {
 		if err := json.Unmarshal(b, &status); err != nil {
-			return nil, 0, err
+			return nil, nil, err
 		}
 	}
 
-	if len(status) == 0 {
-		return nil, 0, fn.Errorf("no active sessions found")
+	if len(status.List) == 0 {
+		return nil, nil, fn.Errorf("no active sessions found")
 	}
 
 	currCluster, err := kube.Singleton().GetClusterName()
 	if err != nil {
-		return nil, 0, err
+		return nil, nil, err
 	}
 
-	for i, s := range status {
+	for _, s := range status.List {
 		if s.Cluster == currCluster {
-			return &s.Cluster, i, nil
+			return &s.Cluster, &s.ConnectionID, nil
 		}
 	}
 
-	return nil, 0, fn.Errorf("no active sessions found")
+	return nil, nil, fn.Errorf("no active sessions found")
 }
 
 func (c *KubeVpnClient) Connect(ns string) error {
@@ -169,7 +172,12 @@ func (c *KubeVpnClient) Connect(ns string) error {
 		return err
 	}
 
-	return fn.ExecCmd(fmt.Sprintf("kubevpn connect --manager-namespace=%s", c.managerNamespace), nil, false)
+	err := fn.ExecCmd(fmt.Sprintf("kubevpn connect --manager-namespace=%s", c.managerNamespace), nil, false)
+	if err != nil {
+		return err
+	}
+
+	return c.cleanStatus()
 }
 
 func (c *KubeVpnClient) Disconnect() error {
@@ -179,18 +187,30 @@ func (c *KubeVpnClient) Disconnect() error {
 		return err
 	}
 
-	return fn.ExecCmd(fmt.Sprintf("kubevpn disconnect %d", i), nil, false)
+	if err := fn.ExecCmd(fmt.Sprintf("kubevpn disconnect %s", *i), nil, false); err != nil {
+		return err
+	}
+
+	return c.cleanStatus()
 }
 
 func (c *KubeVpnClient) Intercept(name string, ns string) error {
 	defer spinner.Client.UpdateMessage("intercepting pod")()
-	return fn.ExecCmd(fmt.Sprintf("kubevpn proxy deployment/%s -n %s --manager-namespace=%s", name, ns, c.managerNamespace), nil, false)
+	if err := fn.ExecCmd(fmt.Sprintf("kubevpn proxy deployment/%s -n %s --manager-namespace=%s", name, ns, c.managerNamespace), nil, false); err != nil {
+		return err
+	}
+
+	return c.cleanStatus()
 }
 
 func (c *KubeVpnClient) Leave(name string, ns string) error {
 	defer spinner.Client.UpdateMessage(fmt.Sprintf("leaving intercept for %s", name))()
 
-	return fn.ExecCmd(fmt.Sprintf("kubevpn leave deployment/%s -n %s", name, ns), nil, false)
+	if err := fn.ExecCmd(fmt.Sprintf("kubevpn leave deployment/%s -n %s", name, ns), nil, false); err != nil {
+		return err
+	}
+
+	return c.cleanStatus()
 }
 
 func NewKubeVpn() ConnectClient {

@@ -4,7 +4,7 @@ import "sync"
 
 type ConnectClient interface {
 	Status() (connected, intercept bool, err error)
-	IsConnected() (*string, int, error)
+	IsConnected() (*string, *string, error)
 	Connect(ns string) error
 	Disconnect() error
 	Intercept(name string, ns string) error

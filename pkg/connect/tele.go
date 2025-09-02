@@ -72,25 +72,25 @@ type TeleClient struct {
 	managerNamespace string
 }
 
-func (c *TeleClient) IsConnected() (*string, int, error) {
+func (c *TeleClient) IsConnected() (*string, *string, error) {
 	b, err := fn.Exec("telepresence status --output json", nil)
 	if err != nil {
-		return nil, 0, err
+		return nil, nil, err
 	}
 
 	var status TeleStatus
 
 	if bytes.TrimSpace(b) != nil {
 		if err := json.Unmarshal(b, &status); err != nil {
-			return nil, 0, err
+			return nil, nil, err
 		}
 	}
 
 	if status.UserDaemon.Status == "Connected" {
-		return &status.UserDaemon.Name, 0, nil
+		return &status.UserDaemon.Name, nil, nil
 	}
 
-	return nil, 0, fn.Errorf("no active sessions found")
+	return nil, nil, fn.Errorf("no active sessions found")
 }
 
 func (c *TeleClient) Connect(ns string) error {

@@ -61,9 +61,7 @@ func (c *KubeVpnClient) EnsureDependencies() error {
 func (c *KubeVpnClient) cleanStatus() error {
 	s := flags.GetCacheDir()
 	cachePath := fmt.Sprintf("%s/kubevpn.json", s)
-	if err := os.Remove(cachePath); err != nil {
-		return err
-	}
+	os.Remove(cachePath)
 	return nil
 }
 

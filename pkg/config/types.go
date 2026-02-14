@@ -21,7 +21,7 @@ type Config struct {
 
 	Bridge BridgeConfig `yaml:"bridge"`
 
-	Devbox  bool    `yaml:"devbox"`
+	Nixy bool `yaml:"nixy"`
 	LoadEnv LoadEnv `yaml:"loadEnv"`
 }
 

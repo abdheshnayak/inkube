@@ -1,6 +1,6 @@
 module github.com/abdheshnayak/inkube
 
-go 1.24.3
+go 1.24.4
 
 require (
 	al.essio.dev/pkg/shellescape v1.6.0
@@ -21,6 +21,7 @@ require (
 	k8s.io/apimachinery v0.33.1
 	k8s.io/client-go v0.33.1
 	sigs.k8s.io/yaml v1.4.0
+	github.com/nxtcoder17/nixy v1.5.1
 )
 
 require (
@@ -70,8 +71,8 @@ require (
 	golang.org/x/net v0.40.0 // indirect
 	golang.org/x/oauth2 v0.27.0 // indirect
 	golang.org/x/sync v0.15.0 // indirect
-	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/term v0.32.0 // indirect
+	golang.org/x/sys v0.37.0 // indirect
+	golang.org/x/term v0.36.0 // indirect
 	golang.org/x/text v0.26.0 // indirect
 	golang.org/x/time v0.9.0 // indirect
 	google.golang.org/protobuf v1.36.5 // indirect

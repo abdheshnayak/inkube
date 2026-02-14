@@ -1,12 +1,11 @@
 package init
 
 import (
-	"encoding/json"
 	"os"
 	"path"
 
 	"github.com/abdheshnayak/inkube/pkg/config"
-	"github.com/abdheshnayak/inkube/pkg/devbox"
+	"github.com/abdheshnayak/inkube/pkg/nixyclient"
 	"github.com/abdheshnayak/inkube/pkg/fn"
 	"github.com/abdheshnayak/inkube/pkg/kube"
 	"github.com/abdheshnayak/inkube/pkg/ui/fzf"
@@ -82,25 +81,6 @@ func run() error {
 		return err
 	}
 
-	devBoxDefaultStr := `{
-    "$schema": "https://raw.githubusercontent.com/jetify-com/inkube/0.14.2/.schema/inkube.schema.json",
-    "packages": [],
-    "shell": {
-      "init_hook": [
-        "echo 'Welcome to inkube!' > /dev/null"
-      ],
-      "scripts": {
-        "test": [
-          "echo \"Error: no test specified\" && exit 1"
-        ]
-      }
-    }
-  }`
-	devBoxDefault := map[string]any{}
-	if err := json.Unmarshal([]byte(devBoxDefaultStr), &devBoxDefault); err != nil {
-		return err
-	}
-
 	b, err := yaml.Marshal(config.Config{
 		Connect:   true,
 		Version:   "v1",
@@ -116,7 +96,7 @@ func run() error {
 			Name:      dep.Name,
 			Intercept: false,
 		},
-		Devbox: true,
+		Nixy: true,
 	})
 
 	if err != nil {
@@ -128,5 +108,5 @@ func run() error {
 		return err
 	}
 
-	return devbox.NewDevboxClient().EnsureInit()
+	return nixyclient.NewClient().EnsureInit()
 }

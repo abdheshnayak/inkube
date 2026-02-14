@@ -7,7 +7,7 @@ import (
 
 	"github.com/abdheshnayak/inkube/pkg/config"
 	"github.com/abdheshnayak/inkube/pkg/connect"
-	"github.com/abdheshnayak/inkube/pkg/devbox"
+	"github.com/abdheshnayak/inkube/pkg/nixyclient"
 	"github.com/abdheshnayak/inkube/pkg/fn"
 	"github.com/abdheshnayak/inkube/pkg/kube"
 	"github.com/abdheshnayak/inkube/pkg/shell"
@@ -82,8 +82,8 @@ func Run(cmd *cobra.Command, args []string) error {
 		maps.Copy(envs, cfg.LoadEnv.Overrides)
 	}
 
-	if cfg.Devbox {
-		m, err := devbox.NewDevboxClient().ShellEnv()
+	if cfg.Nixy {
+		m, err := nixyclient.NewClient().ShellEnv()
 		if err != nil {
 			return err
 		}

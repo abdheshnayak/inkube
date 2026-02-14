@@ -35,8 +35,8 @@
 
 - kubeconfig file
 - [kubevpn](https://github.com/kubenetworks/kubevpn)
-- [devbox](https://www.jetify.com/docs/devbox/installing_devbox)
-- [nix](https://nixos.org/download/) will be automatically installed by devbox
+- [nix](https://nixos.org/download/)
+- [nixy](https://github.com/nxtcoder17/nixy) (optional; for dev packages and env via `nixy.yml`)
 
 > Please make sure you fullfill the prerequisites before using inkube.
 
@@ -53,10 +53,7 @@ go install github.com/abdheshnayak/inkube@latest
 ### 🚀 Usage
 
 ```bash
-# create a new devbox config file
-devbox init
-
-# create a new inkube config file
+# create a new inkube config file (optionally creates nixy.yml for dev packages)
 inkube init
 ```
 

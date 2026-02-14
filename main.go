@@ -8,7 +8,7 @@ import (
 	"github.com/abdheshnayak/inkube/cmd"
 	"github.com/abdheshnayak/inkube/flags"
 	"github.com/abdheshnayak/inkube/pkg/connect"
-	"github.com/abdheshnayak/inkube/pkg/devbox"
+	"github.com/abdheshnayak/inkube/pkg/nixyclient"
 	fn "github.com/abdheshnayak/inkube/pkg/fn"
 	"github.com/abdheshnayak/inkube/pkg/ui/spinner"
 	"github.com/spf13/cobra"
@@ -62,7 +62,7 @@ func main() {
 
 func Run() error {
 
-	if err := devbox.NewDevboxClient().EnsureDependencies(); err != nil {
+	if err := nixyclient.NewClient().EnsureDependencies(); err != nil {
 		return err
 	}
 
